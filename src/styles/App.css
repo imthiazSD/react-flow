@@ -1,0 +1,128 @@
+body{
+  background:#f1f2f6;;
+  --shape-width: 60px;
+  --shape-height: 60px;
+}
+
+/* Main */
+#app-container{
+  /* background: gray; */
+  width: 900px;
+  height: 700px;
+
+  position: absolute;
+  margin: auto;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+}
+
+.toolbox{
+
+  float: left;
+  width: 18%;
+  height: 300px;
+  background-color: white;
+  box-shadow: 0px 0px 20px 1px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+
+#chart_window{
+
+  float: right;
+  background: white;
+  width: 80%;
+  height: 100%;
+  box-shadow: 0px 0px 20px 1px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  position: relative;
+}
+
+#connector_canvas{
+  position:relative;
+  width:100%;
+  height:100%;
+  stroke:#5c96bc;
+  stroke-width:2;
+  /* position: absolute; */
+}
+
+.line{
+  stroke-width:2px;
+  stroke:rgb(0,0,0);
+}
+
+/* Toolbox Shapes */
+
+#toolbox_triangle {
+	width: 0;
+	height: 0;
+  
+  border-left: calc(var(--shape-height)/2) solid transparent;
+	border-right: calc(var(--shape-height)/2) solid transparent;
+  border-bottom: var(--shape-height) solid #70a1ff;
+
+  margin: 0 auto;
+
+}
+
+#toolbox_circle {
+  height: var(--shape-height);
+  width: var(--shape-height);
+  background-color: #70a1ff;
+  border-radius: 50%;
+
+  margin: 0 auto;
+}
+
+#toolbox_square {
+  height: var(--shape-height);
+  width: var(--shape-height);
+  background-color: #70a1ff;
+
+  margin: 0 auto;
+
+}
+
+/* Canvas shape components */
+
+.shape_circle {
+  height: var(--shape-height);
+  width: var(--shape-height);
+  background-color: #70a1ff;
+  border-radius: 50%;
+
+  margin: 0 auto;
+}
+
+.shape_square {
+  height: var(--shape-height);
+  width: var(--shape-height);
+  background-color: #70a1ff;
+
+  margin: 0 auto;
+
+}
+
+.shape_triangle {
+	width: 0;
+	height: 0;
+  
+  border-left: calc(var(--shape-height)/2) solid transparent;
+	border-right: calc(var(--shape-height)/2) solid transparent;
+  border-bottom: var(--shape-height) solid #70a1ff;
+
+  margin: 0 auto;
+
+}
+
+.con_anchor{
+  position: relative;
+  width: 8px;
+  height: 8px;
+  background-color: #47cf73;
+  border-radius: 50%;
+  z-index:5;
+}
