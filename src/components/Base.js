@@ -15,13 +15,41 @@ export default class Base extends Component{
 
     /** Helper methods **/ 
 
-   
+    createShapeComponent = (name,left,top) => {
+
+        let newComponent = document.createElement('div')
+        const id = 'component_' + this.state.shape_components.length
+        newComponent.id = id
+        newComponent.className = name.replace('toolbox','shape')
+        newComponent.className += ' shape'
+        newComponent.draggable = true
+        newComponent.style.position = 'absolute'
+        newComponent.style.margin = '0'
+        newComponent.style.zIndex = 999
+        newComponent.style.left = left
+        newComponent.style.top = top
+        newComponent.addEventListener('dragstart', (e) => this.onDragStartShape(e,id,'canvas_shape'))
+        // connector anchors
+        let anchorElm = document.createElement('div')
+        anchorElm.id = 'anchor1'
+        anchorElm.className = 'con_anchor_top'
+        anchorElm.draggable = true
+        // anchorElm.draggable = true
+        // anchorElm.addEventListener('dragstart',(e)=>{this.onDragStartAnchor(e, anchorElm.id)})
+        anchorElm.addEventListener('mousedown', (e)=>{this.onMouseDownAnchor(e)})
+        anchorElm.addEventListener('dragstart',(e)=>{
+                                                     e.preventDefault()
+                                                     e.stopPropagation()
+                                                    })
+        newComponent.appendChild(anchorElm)
+        return newComponent
+    }
+
 
     initializeLine = (id) => {
-        let canvas =  document.getElementById('connector_canvas')
         let newLine = document.createElementNS('http://www.w3.org/2000/svg','line');
-
         newLine.setAttribute('id', id)
+        // newLine.addEventListener('drop',e=>{e.preventDefault()})
         return newLine
     }
   
@@ -41,30 +69,58 @@ export default class Base extends Component{
     
     /** Event Handlers **/ 
 
-    onDragOver = e => {
-        e.preventDefault()
-    }
-
-    onDragStartShape = (e, id, cat) => {
+    onDragStartToolbox = (e, id, cat) => {
         console.log('drag start',id);
         e.dataTransfer.setData('id',id)
         e.dataTransfer.setData('cat',cat)
 
     }
 
-    onMouseMoveAnchor = (e) => {
+    onDragStartShape = (e, id,cat) => {
 
-        // console.log('mous moivng')
-        // if(this.state.isMouseDown){
-        //     const x1 = e.target.offsetParent.offsetLeft
-        //     const y1 = e.target.offsetParent.offsetTop
-        //     const x2 = e.clientX
-        //     const y2 = e.clientY
-    
-        //     const coordinates = {x1,y1,x2,y2}
-        //     this.updateLine(this.state.current_line_id, coordinates)
-        // }
+        e.dataTransfer.setData('id',id)
+        e.dataTransfer.setData('cat',cat)
+        this.setState({current_component: e.target})
     }
+
+
+    onDragOverCanvas = (e) => {
+        e.preventDefault()
+
+        const current_component = this.state.current_component
+        
+        const canvas = document.getElementById('chart_window')
+        const x = e.clientX  -canvas.offsetParent.offsetLeft - canvas.offsetLeft 
+        const y = e.clientY - canvas.offsetParent.offsetTop - canvas.offsetTop
+
+        if(current_component){
+
+            let shape_components = this.state.shape_components
+            shape_components.forEach(shape_component => {
+                if(shape_component.component.id === current_component.id){
+    
+                    shape_component.lines_from_self.forEach(lineElm =>{
+
+                        lineElm.setAttribute('x1',x)
+                        lineElm.setAttribute('y1',y)
+
+                    })
+
+                    shape_component.lines_to_self.forEach(lineElm =>{
+
+                        lineElm.setAttribute('x2',x)
+                        lineElm.setAttribute('y2',y)
+
+                    })
+    
+    
+                }
+            }) 
+        }
+        
+    
+    }
+
 
     onMouseDownAnchor = (e) => {
 
@@ -75,20 +131,6 @@ export default class Base extends Component{
         let lines = this.state.lines
         lines.push(newLine)
         this.setState({lines})
-        // this.setState({})
-
-        // let {shape_components} = this.state
-        // shape_components = shape_components.map(item => {
-
-        //     if(item.component.id === e.target.parentElement.id){
-                
-        //          let lines_from_self = item.lines_from_self
-        //          lines_from_self.push(newLine)
-        //          return {...item,lines_from_self}
-        //     }
-        //     else{ return item}
-        // })
-
 
         document.getElementById('connector_canvas').appendChild(newLine)
         this.setState({ current_line_id: id, current_anchor:e.target})
@@ -100,10 +142,7 @@ export default class Base extends Component{
         const x = e.clientX  -canvas.offsetParent.offsetLeft - canvas.offsetLeft 
         const y = e.clientY - canvas.offsetParent.offsetTop - canvas.offsetTop
         let rect = this.state.current_anchor
-        // const left = ( e.clientX 
-        //     -canvas.offsetParent.offsetLeft
-        //     -canvas.offsetLeft 
-        //     -incoming_element.offsetWidth/2 ).toString() + 'px'
+
         if(rect){
 
             rect = {    x      : rect.offsetParent.offsetLeft,
@@ -134,9 +173,13 @@ export default class Base extends Component{
         const x = e.clientX 
         const y = e.clientY 
         let targetElm = document.elementFromPoint(x, y)
+        let current_component = this.state.current_anchor.parentElement
         const className = targetElm.className
 
-        if (typeof(className) === 'string' && className.split(' ').includes('shape')){
+        if (typeof(className) === 'string' 
+            && className.split(' ').includes('shape')
+            && current_component.id !== targetElm.id
+            ){
 
 
             let newLine = document.getElementById(this.state.current_line_id)
@@ -197,50 +240,28 @@ export default class Base extends Component{
     }
 
      
-    createShapeComponent = (name,left,top) => {
-
-        let newComponent = document.createElement('div')
-        newComponent.id = 'component_' + this.state.shape_components.length
-        newComponent.className = name.replace('toolbox','shape')
-        newComponent.className += ' shape'
-        newComponent.style.position = 'absolute'
-        newComponent.style.margin = '0'
-        newComponent.style.zIndex = 999
-        newComponent.style.left = left
-        newComponent.style.top = top
-
-        // connector anchors
-        let anchorElm = document.createElement('div')
-        anchorElm.id = 'anchor1'
-        anchorElm.className = 'con_anchor_top'
-        // anchorElm.draggable = true
-        // anchorElm.addEventListener('dragstart',(e)=>{this.onDragStartAnchor(e, anchorElm.id)})
-        anchorElm.addEventListener('mousemove', (e)=>{this.onMouseMoveAnchor(e)})
-        anchorElm.addEventListener('mousedown', (e)=>{this.onMouseDownAnchor(e)})
-        newComponent.appendChild(anchorElm)
-        return newComponent
-    }
+    
 
     onDropCanvas = (e) => {
-        
-        
-        if(e.dataTransfer.getData('cat') === 'toolbox-shape'){
-            e.preventDefault()
-            let canvas = document.getElementById('chart_window')
-            let name = e.dataTransfer.getData('id')
-            let incoming_element = document.getElementById(name)
 
-            const left = ( e.clientX 
-                          -canvas.offsetParent.offsetLeft
-                          -canvas.offsetLeft 
-                          -incoming_element.offsetWidth/2 ).toString() + 'px'
-            const top = ( e.clientY
-                         -canvas.offsetParent.offsetTop
-                         -canvas.offsetTop 
-                         -incoming_element.offsetHeight/2).toString() + 'px'
-            // const left = (e.clientX - - canvas. incoming_element.offsetWidth/2 ).toString() + 'px'
-            // const top = (e.clientY - canvas.offsetTop - incoming_element.offsetHeight/2).toString() + 'px'
+        e.preventDefault()
+        const category = e.dataTransfer.getData('cat')
 
+        let canvas = document.getElementById('chart_window')
+        let name = e.dataTransfer.getData('id')
+        let incoming_element = document.getElementById(name)
+        
+        const left = ( e.clientX 
+                    -canvas.offsetParent.offsetLeft
+                    -canvas.offsetLeft 
+                    -incoming_element.offsetWidth/2 ).toString() + 'px'
+        const top = ( e.clientY
+                    -canvas.offsetParent.offsetTop
+                    -canvas.offsetTop 
+                    -incoming_element.offsetHeight/2).toString() + 'px'
+      
+        if(category === 'toolbox-shape'){
+            
             const newComponent = this.createShapeComponent(name,left, top)        
             canvas.appendChild(newComponent)
 
@@ -251,8 +272,14 @@ export default class Base extends Component{
                                   })
             this.setState({shape_components})
         }
-        
 
+        else if(category === 'canvas_shape'){
+            
+            incoming_element.style.top = top
+            incoming_element.style.left = left
+        }
+        
+        this.setState({current_component:null})
     }
 
 
@@ -266,7 +293,7 @@ export default class Base extends Component{
                                                 key={item}
                                                 draggable
                                                 style={{cursor:'move'}}
-                                                onDragStart= {e => this.onDragStartShape(e, item, 'toolbox-shape' )}
+                                                onDragStart= {e => this.onDragStartToolbox(e, item, 'toolbox-shape' )}
                                                 //   onMouseDown={e => this.HandlemouseDown(e)} 
                                                 >
                                                 </div>)
@@ -285,12 +312,11 @@ export default class Base extends Component{
                 {/* Chart Window canvas area */}
                 <div 
                  id="chart_window"
-                 onDragOver={e => this.onDragOver(e)}
                  onDrop={e => this.onDropCanvas(e)}
                  onMouseDown={e => this.onMouseDownCanvas(e)}
+                 onDragOver={e =>this.onDragOverCanvas(e)}
                 >
-                    <svg id='connector_canvas'
-                    ></svg>
+                    <svg id='connector_canvas'></svg>
                 </div>
             </div>
         )
