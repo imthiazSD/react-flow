@@ -72,17 +72,26 @@ export default class Base extends Component{
         this.setState({isMouseDown: true})
         const id = 'con_line' + this.state.lines.length
         const newLine = this.initializeLine(id)
+        let lines = this.state.lines
+        lines.push(newLine)
+        this.setState({lines})
         // this.setState({})
 
-        let {shape_components} = this.state
-        shape_components = shape_components.map(item => {
+        // let {shape_components} = this.state
+        // shape_components = shape_components.map(item => {
 
-            if(item.id === e.target.id){return {...item,lines:item.lines.push(newLine)}}
-            else{ return item}
-        })
+        //     if(item.component.id === e.target.parentElement.id){
+                
+        //          let lines_from_self = item.lines_from_self
+        //          lines_from_self.push(newLine)
+        //          return {...item,lines_from_self}
+        //     }
+        //     else{ return item}
+        // })
+
 
         document.getElementById('connector_canvas').appendChild(newLine)
-        this.setState({ shape_components, current_line_id: id, current_anchor:e.target})
+        this.setState({ current_line_id: id, current_anchor:e.target})
     }
 
     onMouseDownCanvas = (e) => {
@@ -101,7 +110,7 @@ export default class Base extends Component{
                         y      : rect.offsetParent.offsetTop,
                         width  : rect.offsetWidth,
                         height : rect.offsetHeight
-                }
+                   }
             console.log('cx cy',x,y)
             console.log('rect',rect)
             if(pointInRect(x,y,rect)){
@@ -117,9 +126,59 @@ export default class Base extends Component{
     }
 
     onMouseUpCanvas = (e) => {
-        document.getElementById('chart_window').removeEventListener('mousemove',this.onMouseMoveCanvas);
-        document.getElementById('chart_window').removeEventListener('mouseup',this.onMouseUpCanvas);
-     
+
+        const canvas = document.getElementById('chart_window')
+        canvas.removeEventListener('mousemove',this.onMouseMoveCanvas);
+        canvas.removeEventListener('mouseup',this.onMouseUpCanvas);
+        
+        const x = e.clientX 
+        const y = e.clientY 
+        let targetElm = document.elementFromPoint(x, y)
+        const className = targetElm.className
+
+        if (typeof(className) === 'string' && className.split(' ').includes('shape')){
+
+
+            let newLine = document.getElementById(this.state.current_line_id)
+            let {shape_components} = this.state
+            
+            // append line to lines_from_self of the origin component
+
+            shape_components = shape_components.map(item => {
+                
+                let current_component = this.state.current_anchor.parentElement
+                if(item.component.id === current_component.id){
+                    
+                     let lines_from_self = item.lines_from_self
+                     lines_from_self.push(newLine)
+                     return {...item,lines_from_self}
+                }else{ return item}
+            })
+            
+            // append line to lines_to_self of the target component
+
+            shape_components = shape_components.map(item => {
+                
+                if(item.component.id === targetElm.id){
+                    
+                     let lines_to_self = item.lines_to_self
+                     lines_to_self.push(newLine)
+                     return {...item,lines_to_self}
+                }else{ return item}
+            })
+
+            this.setState({shape_components},()=>console.log('state is',this.state))
+
+        }else{
+
+            // remove the line from the canvas and state
+            let lineElm = document.getElementById(this.state.current_line_id)
+            lineElm.parentNode.removeChild(lineElm)
+            let lines = this.state.lines
+            lines.slice(0,-1)
+            this.setState({lines})
+        }
+
     }
 
     onMouseMoveCanvas = (e) => {
@@ -133,7 +192,7 @@ export default class Base extends Component{
         const y2 = e.clientY - canvas.offsetParent.offsetTop - canvas.offsetTop
 
         const coordinates = {x1,y1,x2,y2}
-        console.log('on mouse move canv',coordinates)
+        // console.log('on mouse move canv',coordinates)
         this.updateLine(this.state.current_line_id, coordinates)
     }
 
@@ -143,6 +202,7 @@ export default class Base extends Component{
         let newComponent = document.createElement('div')
         newComponent.id = 'component_' + this.state.shape_components.length
         newComponent.className = name.replace('toolbox','shape')
+        newComponent.className += ' shape'
         newComponent.style.position = 'absolute'
         newComponent.style.margin = '0'
         newComponent.style.zIndex = 999
@@ -152,7 +212,7 @@ export default class Base extends Component{
         // connector anchors
         let anchorElm = document.createElement('div')
         anchorElm.id = 'anchor1'
-        anchorElm.className = 'con_anchor'
+        anchorElm.className = 'con_anchor_top'
         // anchorElm.draggable = true
         // anchorElm.addEventListener('dragstart',(e)=>{this.onDragStartAnchor(e, anchorElm.id)})
         anchorElm.addEventListener('mousemove', (e)=>{this.onMouseMoveAnchor(e)})
@@ -185,7 +245,10 @@ export default class Base extends Component{
             canvas.appendChild(newComponent)
 
             let {shape_components} = this.state
-            shape_components.push({component:newComponent})
+            shape_components.push({component:newComponent,
+                                   lines_from_self:[],
+                                   lines_to_self:[]
+                                  })
             this.setState({shape_components})
         }
         
@@ -195,28 +258,28 @@ export default class Base extends Component{
 
     render(){
 
-        const shapes = ['toolbox_triangle', 'toolbox_square', 'toolbox_circle']
-                       .map(item => {
-                        
-                        return (<div  className='toolbox-shape'
-                                      id={item}
-                                      key={item}
-                                      draggable
-                                      style={{cursor:'move'}}
-                                      onDragStart= {e => this.onDragStartShape(e, item, 'toolbox-shape' )}
-                                    //   onMouseDown={e => this.HandlemouseDown(e)} 
-                                      >
-                                      </div>)
-                        
-                        
-                        });
+        const toolbox_shapes = ['toolbox_triangle', 'toolbox_square', 'toolbox_circle']
+                               .map(item => {
+                                    
+                                    return (<div  className='toolbox-shape'
+                                                id={item}
+                                                key={item}
+                                                draggable
+                                                style={{cursor:'move'}}
+                                                onDragStart= {e => this.onDragStartShape(e, item, 'toolbox-shape' )}
+                                                //   onMouseDown={e => this.HandlemouseDown(e)} 
+                                                >
+                                                </div>)
+                                    
+                                    
+                                    });
 
         return(
             <div id="app-container">
                 
                 {/* Tool box pane */}
                 <div className="toolbox">
-                    {shapes}
+                    {toolbox_shapes}
                 </div>
 
                 {/* Chart Window canvas area */}
