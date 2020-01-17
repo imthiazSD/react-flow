@@ -87,10 +87,14 @@ export default class Base extends Component{
 
     onMouseDownCanvas = (e) => {
 
-        const x = e.clientX
-        const y = e.clientY
+        const canvas = document.getElementById('chart_window')
+        const x = e.clientX  -canvas.offsetParent.offsetLeft - canvas.offsetLeft 
+        const y = e.clientY - canvas.offsetParent.offsetTop - canvas.offsetTop
         let rect = this.state.current_anchor
-
+        // const left = ( e.clientX 
+        //     -canvas.offsetParent.offsetLeft
+        //     -canvas.offsetLeft 
+        //     -incoming_element.offsetWidth/2 ).toString() + 'px'
         if(rect){
 
             rect = {    x      : rect.offsetParent.offsetLeft,
@@ -101,8 +105,8 @@ export default class Base extends Component{
             console.log('cx cy',x,y)
             console.log('rect',rect)
             if(pointInRect(x,y,rect)){
-                document.getElementById('chart_window').addEventListener('mousemove',this.onMouseMoveCanvas);
-                document.getElementById('chart_window').addEventListener('mouseup',this.onMouseUpCanvas);
+                canvas.addEventListener('mousemove',this.onMouseMoveCanvas);
+                canvas.addEventListener('mouseup',this.onMouseUpCanvas);
                 console.log('true')
             }else{
                 console.log('false')
@@ -125,8 +129,8 @@ export default class Base extends Component{
         const canvas = document.getElementById('chart_window')
         const x1 = current_anchor.offsetParent.offsetLeft 
         const y1 = current_anchor.offsetParent.offsetTop  
-        const x2 = e.clientX
-        const y2 = e.clientY
+        const x2 = e.clientX - canvas.offsetParent.offsetLeft - canvas.offsetLeft
+        const y2 = e.clientY - canvas.offsetParent.offsetTop - canvas.offsetTop
 
         const coordinates = {x1,y1,x2,y2}
         console.log('on mouse move canv',coordinates)
