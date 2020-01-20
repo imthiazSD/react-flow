@@ -6,7 +6,8 @@ body{
 
 /* Main */
 #app-container{
-  /* background: gray; */
+
+  max-width: 900px;
   width: 900px;
   height: 700px;
 
@@ -66,17 +67,11 @@ body{
   border-bottom: var(--shape-height) solid #70a1ff;
 
   margin: 0 auto;
-
+  position: relative;
+  top:30px
 }
 
-#toolbox_circle {
-  height: var(--shape-height);
-  width: var(--shape-height);
-  background-color: #70a1ff;
-  border-radius: 50%;
 
-  margin: 0 auto;
-}
 
 #toolbox_square {
   height: var(--shape-height);
@@ -84,7 +79,18 @@ body{
   background-color: #70a1ff;
 
   margin: 0 auto;
+  position: relative;
+  top:60px
+}
 
+#toolbox_circle {
+  height: var(--shape-height);
+  width: var(--shape-height);
+  background-color: #70a1ff;
+  border-radius: 50%;
+  margin: 0 auto;
+  position: relative;
+  top:80px
 }
 
 /* Canvas shape components */
@@ -107,6 +113,15 @@ body{
 
 }
 
+.shape_ghost {
+  height: var(--shape-height);
+  width: var(--shape-height);
+  background-color:black;
+
+  margin: 0 auto;
+
+}
+
 .shape_triangle {
 	width: 0;
 	height: 0;
@@ -120,10 +135,12 @@ body{
 }
 
 .con_anchor_top{
-  position: relative;
+  /* position: absolute; */
+  left: 23px;
+  top:50px;
   width: 15px;
   height: 15px;
   background-color: #47cf73;
-  border-radius: 50%;
+  border-radius: 5px;
   z-index:5;
 }
