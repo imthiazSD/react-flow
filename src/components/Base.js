@@ -1,6 +1,7 @@
 import React,{Component} from 'react';
 import {pointInRect, toJSON, toDOM} from './utils.js'
 import {Button} from 'reactstrap'
+import _ from 'lodash'
 export default class Base extends Component{
     
     constructor(props){
@@ -109,9 +110,11 @@ export default class Base extends Component{
         const x = e.clientX  -canvas.offsetParent.offsetLeft - canvas.offsetLeft 
         const y = e.clientY - canvas.offsetParent.offsetTop - canvas.offsetTop
 
+        // update line endpoint coordinates 
         if(current_component){
 
-            let shape_components = this.state.shape_components
+            let {shape_components} = this.state
+
             shape_components.forEach(shape_component => {
                 if(shape_component.component.id === current_component.id){
     
@@ -157,7 +160,7 @@ export default class Base extends Component{
         const canvas = document.getElementById('chart_window')
         const x = e.clientX  -canvas.offsetParent.offsetLeft - canvas.offsetLeft 
         const y = e.clientY - canvas.offsetParent.offsetTop - canvas.offsetTop
-        let rect = this.state.current_anchor
+        let rect = this.state.current_anchor ? Object.assign(this.state.current_anchor) : null
 
         if(rect){
 
@@ -311,8 +314,8 @@ export default class Base extends Component{
             console.log(this.state)
             this.clearCanvas()
             const {shape_components,lines} = this.loadFromLoacalStorage()
-            this.drawChart(shape_components)
-            this.setState({shape_components,lines})
+            
+            this.setState({shape_components,lines},()=> this.drawChart(shape_components))
 
         }
         
@@ -345,9 +348,9 @@ export default class Base extends Component{
                 document.getElementById('connector_canvas').appendChild(line_fs) 
             })
 
-            lines_to_self.forEach(line_ts =>{
-                // document.getElementById('connector_canvas').appendChild(line_ts) 
-            })
+            // lines_to_self.forEach(line_ts =>{
+            //     document.getElementById('connector_canvas').appendChild(line_ts) 
+            // })
             
 
         })
@@ -357,7 +360,7 @@ export default class Base extends Component{
 
     saveToLocalStorage = () => {
 
-        let {shape_components} = this.state
+        let shape_components = _.cloneDeep(this.state.shape_components)
 
         // Stringify all the DOM elements
         shape_components = shape_components.map(shape_component => {
@@ -368,7 +371,7 @@ export default class Base extends Component{
                     return toJSON(line_fs)
                 })
 
-                shape_components.lines_to_self = shape_component.lines_to_self.map(line_ts => {
+                shape_component.lines_to_self = shape_component.lines_to_self.map(line_ts => {
                     return toJSON(line_ts)
                 })
 
@@ -376,18 +379,20 @@ export default class Base extends Component{
 
 
             })
-        
+        console.log('saved state',this.state)
         // Stringfy global line elements
-        let {lines} = this.state
+        let lines = Object.assign(this.state.lines) 
         lines = lines.map(line => (toJSON(line)))
+
         const flow_chart = JSON.stringify({shape_components,lines})
         localStorage.setItem('flow_chart',flow_chart)
     }
 
     
     loadFromLoacalStorage = () => {
-        let {shape_components,lines} = JSON.parse(localStorage.getItem('flow_chart'))
 
+        let {shape_components,lines} = JSON.parse(localStorage.getItem('flow_chart'))
+        lines = lines.map(line => (toDOM(line)))
         // Parse all the DOM node objects and format them back to DOM node represenation
         shape_components = shape_components.map(shape_component => {
 
@@ -397,7 +402,7 @@ export default class Base extends Component{
                 return toDOM(line_fs)
             })
 
-            shape_components.lines_to_self = shape_component.lines_to_self.map(line_ts => {
+            shape_component.lines_to_self = shape_component.lines_to_self.map(line_ts => {
                 return toDOM(line_ts)
             })
 

@@ -55,9 +55,9 @@ export function toJSON(node) {
         // obj.y1.baseVal.value = node.y1.baseVal.value
         // obj.y2.baseVal.value = node.y2.baseVal.value
         obj.x1 = node.x1.baseVal.value
-        obj.x2 = node.x1.baseVal.value
-        obj.y1 = node.x1.baseVal.value
-        obj.y2 = node.x1.baseVal.value
+        obj.x2 = node.x2.baseVal.value
+        obj.y1 = node.y1.baseVal.value
+        obj.y2 = node.y2.baseVal.value
       }
 
 
@@ -115,7 +115,6 @@ export function toJSON(node) {
                     // Note: this will throw if setting the value of an input[type=file]
                     node[propName] = value;
                   }
-               
               
               }
 
@@ -130,6 +129,8 @@ export function toJSON(node) {
           node.setAttribute('x2', x2)
           node.setAttribute('y1', y1)
           node.setAttribute('y2', y2)
+
+          
         }else{
 
           node = document.createElement(obj.tagName);
