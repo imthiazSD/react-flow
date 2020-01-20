@@ -1,5 +1,6 @@
 import React,{Component} from 'react';
-import {pointInRect} from './utils.js'
+import {pointInRect, toJSON, toDOM} from './utils.js'
+import {Button} from 'reactstrap'
 export default class Base extends Component{
     
     constructor(props){
@@ -42,6 +43,8 @@ export default class Base extends Component{
                                                      e.stopPropagation()
                                                     })
         newComponent.appendChild(anchorElm)
+
+        let wrapper = document.createElement('div')
         return newComponent
     }
 
@@ -65,6 +68,19 @@ export default class Base extends Component{
         line.setAttribute('y2', y2)
 
         
+    }
+
+    clearCanvas = ()=>{
+
+        let canvas = document.getElementById('chart_window')
+        while(canvas.firstChild) {
+            canvas.removeChild(canvas.firstChild);
+        }
+
+        let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+        svg.setAttribute('id','connector_canvas')
+        canvas.appendChild(svg)
+    
     }
     
     /** Event Handlers **/ 
@@ -222,6 +238,8 @@ export default class Base extends Component{
             this.setState({lines})
         }
 
+        this.setState({current_anchor:null})
+
     }
 
     onMouseMoveCanvas = (e) => {
@@ -283,6 +301,113 @@ export default class Base extends Component{
     }
 
 
+    handleClick = e => {
+        const name = e.target.id
+        if(name === 'save'){
+            
+            this.saveToLocalStorage()
+        }else{
+
+            console.log(this.state)
+            this.clearCanvas()
+            const {shape_components,lines} = this.loadFromLoacalStorage()
+            this.drawChart(shape_components)
+            this.setState({shape_components,lines})
+
+        }
+        
+    }
+
+
+    drawChart = (shape_components) => {
+
+        // Draw shape components on to canvas div
+        shape_components.forEach(shape_component => {
+            
+            let {component} = shape_component
+
+            // Attach event Listeners
+            const {id} = component
+            component.addEventListener('dragstart', (e) => this.onDragStartShape(e,id,'canvas_shape'))
+            document.getElementById('chart_window').appendChild(component)
+            
+            const anchorElm = component.children[0]
+            anchorElm.addEventListener('mousedown', (e)=>{this.onMouseDownAnchor(e)})
+            anchorElm.addEventListener('dragstart',(e)=>{
+                                                     e.preventDefault()
+                                                     e.stopPropagation()
+                                                    })
+            // Draw lines on to connector canvas svg
+            let {lines_from_self} = shape_component
+            let {lines_to_self} = shape_component
+
+            lines_from_self.forEach(line_fs =>{
+                document.getElementById('connector_canvas').appendChild(line_fs) 
+            })
+
+            lines_to_self.forEach(line_ts =>{
+                // document.getElementById('connector_canvas').appendChild(line_ts) 
+            })
+            
+
+        })
+       
+    }
+
+
+    saveToLocalStorage = () => {
+
+        let {shape_components} = this.state
+
+        // Stringify all the DOM elements
+        shape_components = shape_components.map(shape_component => {
+                
+                shape_component.component = toJSON(shape_component.component)
+                
+                shape_component.lines_from_self = shape_component.lines_from_self.map(line_fs => {
+                    return toJSON(line_fs)
+                })
+
+                shape_components.lines_to_self = shape_component.lines_to_self.map(line_ts => {
+                    return toJSON(line_ts)
+                })
+
+                return shape_component
+
+
+            })
+        
+        // Stringfy global line elements
+        let {lines} = this.state
+        lines = lines.map(line => (toJSON(line)))
+        const flow_chart = JSON.stringify({shape_components,lines})
+        localStorage.setItem('flow_chart',flow_chart)
+    }
+
+    
+    loadFromLoacalStorage = () => {
+        let {shape_components,lines} = JSON.parse(localStorage.getItem('flow_chart'))
+
+        // Parse all the DOM node objects and format them back to DOM node represenation
+        shape_components = shape_components.map(shape_component => {
+
+            shape_component.component = toDOM(shape_component.component)
+
+            shape_component.lines_from_self = shape_component.lines_from_self.map(line_fs => {
+                return toDOM(line_fs)
+            })
+
+            shape_components.lines_to_self = shape_component.lines_to_self.map(line_ts => {
+                return toDOM(line_ts)
+            })
+
+            return shape_component
+        })
+
+        return {shape_components,lines}
+    }
+    
+
     render(){
 
         const toolbox_shapes = ['toolbox_triangle', 'toolbox_square', 'toolbox_circle']
@@ -317,6 +442,28 @@ export default class Base extends Component{
                  onDragOver={e =>this.onDragOverCanvas(e)}
                 >
                     <svg id='connector_canvas'></svg>
+                </div>
+                {/* Actions panel */}
+                
+                <div className='actions'>
+                  <Button 
+                   outline
+                   id="save"
+                   color="warning"
+                   onClick={e => this.handleClick(e)}
+                  >
+                  Save Chart
+                  </Button>
+                  <Button 
+                   outline
+                   id="load"
+                   color="warning"
+                   onClick={e => this.handleClick(e)}
+                  >
+                  Load Chart
+                  </Button>
+
+
                 </div>
             </div>
         )
