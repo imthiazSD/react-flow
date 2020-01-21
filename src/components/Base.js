@@ -1,5 +1,5 @@
 import React,{Component} from 'react';
-import {pointInRect, toJSON, toDOM} from './utils.js'
+import {pointInRect, toJSON, toDOM, createShapeComponent} from './utils.js'
 import {Button} from 'reactstrap'
 import _ from 'lodash'
 export default class Base extends Component{
@@ -15,40 +15,7 @@ export default class Base extends Component{
     }
 
 
-    /** Helper methods **/ 
-
-    createShapeComponent = (name,left,top) => {
-
-        let newComponent = document.createElement('div')
-        const id = 'component_' + this.state.shape_components.length
-        newComponent.id = id
-        newComponent.className = name.replace('toolbox','shape')
-        newComponent.className += ' shape'
-        newComponent.draggable = true
-        newComponent.style.position = 'absolute'
-        newComponent.style.margin = '0'
-        newComponent.style.zIndex = 999
-        newComponent.style.left = left
-        newComponent.style.top = top
-        newComponent.addEventListener('dragstart', (e) => this.onDragStartShape(e,id,'canvas_shape'))
-        // connector anchors
-        let anchorElm = document.createElement('div')
-        anchorElm.id = 'anchor1'
-        anchorElm.className = 'con_anchor_top'
-        anchorElm.draggable = true
-        // anchorElm.draggable = true
-        // anchorElm.addEventListener('dragstart',(e)=>{this.onDragStartAnchor(e, anchorElm.id)})
-        anchorElm.addEventListener('mousedown', (e)=>{this.onMouseDownAnchor(e)})
-        anchorElm.addEventListener('dragstart',(e)=>{
-                                                     e.preventDefault()
-                                                     e.stopPropagation()
-                                                    })
-        newComponent.appendChild(anchorElm)
-
-        let wrapper = document.createElement('div')
-        return newComponent
-    }
-
+    /** Helper methods **/  
 
     initializeLine = (id) => {
         let newLine = document.createElementNS('http://www.w3.org/2000/svg','line');
@@ -284,7 +251,8 @@ export default class Base extends Component{
       
         if(category === 'toolbox-shape'){
             
-            const newComponent = this.createShapeComponent(name,left, top)        
+            let _this = this
+            const newComponent = createShapeComponent(name, left, top, _this)        
             canvas.appendChild(newComponent)
 
             let {shape_components} = this.state
@@ -370,7 +338,7 @@ export default class Base extends Component{
                     return shape_component
 
                 })
-                
+
                 // Draw lines onto connector canvas svg
                 document.getElementById('connector_canvas').appendChild(line) 
             })
