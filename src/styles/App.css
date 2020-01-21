@@ -5,6 +5,10 @@ body{
   --shape-color: #a29bfe;
 }
 
+.wrapper{
+  height: 100vh;
+  width: 100vw;
+}
 /* Main */
 #app-container{
 
@@ -19,6 +23,23 @@ body{
   bottom: 0;
   left: 0;
 
+}
+
+line{
+  stroke-dasharray: 7 5;
+}
+
+.actions{
+  /* position: relative; */
+  top:20px
+}
+
+.acn_btn{
+  transition: transform .3s;
+}
+
+.acn_btn:hover{
+  transform: scale(1.2);
 }
 
 .toolbox{
