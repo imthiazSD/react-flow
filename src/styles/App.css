@@ -65,6 +65,7 @@ body{
   border-left: calc(var(--shape-height)/2) solid transparent;
 	border-right: calc(var(--shape-height)/2) solid transparent;
   border-bottom: var(--shape-height) solid #70a1ff;
+  transition: transform .2s; 
 
   margin: 0 auto;
   position: relative;
@@ -76,7 +77,8 @@ body{
 #toolbox_square {
   height: var(--shape-height);
   width: var(--shape-height);
-  background-color: #70a1ff;
+background-color: #ffffff;
+  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.2);  transition: transform .2s; 
 
   margin: 0 auto;
   position: relative;
@@ -86,11 +88,27 @@ body{
 #toolbox_circle {
   height: var(--shape-height);
   width: var(--shape-height);
-  background-color: #70a1ff;
+  background-color: #ffffff;
+  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.2);
+
+  transition: transform .2s; 
+
   border-radius: 50%;
   margin: 0 auto;
   position: relative;
   top:80px
+}
+
+#toolbox_circle:hover{
+  transform: scale(1.1);
+}
+
+#toolbox_square:hover{
+  transform: scale(1.1);
+}
+
+#toolbox_triangle:hover{
+  transform: scale(1.1);
 }
 
 /* Canvas shape components */
@@ -102,14 +120,29 @@ body{
   border-radius: 50%;
 
   margin: 0 auto;
+  box-shadow: 0px 0px 20px 1px rgba(0, 0, 0, 0.1);
 }
 
 .shape_square {
   height: var(--shape-height);
   width: var(--shape-height);
-  background-color: #70a1ff;
-
+  background-color: #ffffff;
+  transition: transform .2s; 
   margin: 0 auto;
+  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.2);
+}
+
+.shape_square:hover{
+  transform: scale(1.1);
+}
+
+.shape_circle:hover{
+  transform: scale(1.1);
+
+}
+
+.shape_triangle:hover{
+  transform: scale(1.1);
 
 }
 
@@ -131,7 +164,7 @@ body{
   border-bottom: var(--shape-height) solid #70a1ff;
 
   margin: 0 auto;
-
+  box-shadow: 0px 0px 20px 1px rgba(0, 0, 0, 0.1);
 }
 
 .con_anchor_top{
