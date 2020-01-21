@@ -1,6 +1,8 @@
 import React,{Component} from 'react';
 import {pointInRect, toJSON, toDOM, createShapeComponent} from './utils.js'
-import {Button} from 'reactstrap'
+import {Button, Alert} from 'reactstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSave, faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import _ from 'lodash'
 export default class Base extends Component{
     
@@ -10,7 +12,8 @@ export default class Base extends Component{
         this.state = {
             shape_components : [],
             lines : [],
-            current_line_id : ''
+            current_line_id : '',
+            visible: false
         }
     }
 
@@ -23,7 +26,12 @@ export default class Base extends Component{
         // newLine.addEventListener('drop',e=>{e.preventDefault()})
         return newLine
     }
+
+    // Dismiss alert
+    onDismiss = () => this.setState({visible: !this.state.visible}) 
   
+    // Trigger alert
+    triggerAlert = () => this.setState({visible: true})
   
     updateLine = (id,coordinates) => {
 
@@ -279,10 +287,12 @@ export default class Base extends Component{
 
 
     handleClick = e => {
-        const name = e.target.id
+        const name = e.currentTarget .id
         if(name === 'save'){
             
             this.saveToLocalStorage()
+            this.triggerAlert()
+            setTimeout(()=>this.onDismiss(),3000)
         }else{
 
             console.log(this.state)
@@ -438,44 +448,70 @@ export default class Base extends Component{
                                     });
 
         return(
-            <div id="app-container">
-                
-                {/* Tool box pane */}
-                <div className="toolbox">
-                    {toolbox_shapes}
-                </div>
 
-                {/* Chart Window canvas area */}
-                <div 
-                 id="chart_window"
-                 onDrop={e => this.onDropCanvas(e)}
-                 onMouseDown={e => this.onMouseDownCanvas(e)}
-                 onDragOver={e =>this.onDragOverCanvas(e)}
-                >
-                    <svg id='connector_canvas'></svg>
-                </div>
-                {/* Actions panel */}
-                
-                <div className='actions'>
-                  <Button 
-                   outline
-                   id="save"
-                   color="warning"
-                   onClick={e => this.handleClick(e)}
-                  >
-                  Save Chart
-                  </Button>
-                  <Button 
-                   outline
-                   id="load"
-                   color="warning"
-                   onClick={e => this.handleClick(e)}
-                  >
-                  Load Chart
-                  </Button>
+            <div className="wrapper">
+                <div id="app-container">
+                    
+                    {/* Tool box pane */}
+                    <div className="toolbox">
+                        {toolbox_shapes}
+                    </div>
+
+                    {/* Chart Window canvas area */}
+                    <div 
+                    id="chart_window"
+                    onDrop={e => this.onDropCanvas(e)}
+                    onMouseDown={e => this.onMouseDownCanvas(e)}
+                    onDragOver={e =>this.onDragOverCanvas(e)}
+                    >
+                        <svg id='connector_canvas'></svg>
+                    </div>
+                    {/* Actions panel */}
+                    
+
+                    <div className='actions'>
+                        
+                        <Button
+                        id="save"
+                        className="acn_btn"
+                        color=""
+                        onClick={e => this.handleClick(e)}
+                        >
+                            <FontAwesomeIcon
+                            className='btn_icn' 
+                            color="#6c5ce7"
+                            icon={faSave} /> 
+                            &nbsp; <strong>Save</strong> 
+
+                        </Button>
+                        
+                        <Button 
+                        id="load"
+                        className="acn_btn"
+                        color=""
+                        onClick={e => this.handleClick(e)}
+                        >
+                            <FontAwesomeIcon 
+                            className='btn_icn' 
+                            color="#6c5ce7"
+                            icon={faArrowDown} /> 
+                            &nbsp; <strong >Load</strong> 
+
+                        </Button>
 
 
+                    </div>
+                    
                 </div>
+                <Alert 
+                    innerProps
+                    color="primary" 
+                    isOpen={this.state.visible} 
+                    toggle={this.onDismiss} 
+                    style={{zIndex:99999,width:300,margin:'0 auto',top:50}}
+                    fade={true}>
+                    The chart has been saved successfuly!
+                    </Alert>
             </div>
         )
     }
