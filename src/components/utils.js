@@ -1,3 +1,5 @@
+import React from 'react'
+
 export function pointInRect(x, y, rect) {
     return inRange(x, rect.x, rect.x + rect.width) &&
            inRange(y, rect.y, rect.y + rect.height);
@@ -179,3 +181,110 @@ export function toJSON(node) {
     }
     return node;
   }
+
+
+
+export function createShapeComponent(name,left,top,owner){
+
+    let newComponent = document.createElement('div')
+    const id = 'component_' + owner.state.shape_components.length
+    newComponent.id = id
+    // newComponent.className = name.replace('toolbox','shape')
+    newComponent.className += ' shape'
+    newComponent.className += ' canvas_shape'
+    newComponent.draggable = true
+    newComponent.style.position = 'absolute'
+    newComponent.style.margin = '0'
+    newComponent.style.zIndex = 999
+    newComponent.style.left = left
+    newComponent.style.top = top
+
+    let componentShape = name.split('_')[1]
+  
+    let shapeElement;
+
+    const width = 60
+    const height = 60
+    const viewBox = '0 0 60 60'
+    const color = '#DDF5FF'
+
+    const namespace = 'http://www.w3.org/2000/svg'
+    const svg = document.createElementNS(namespace,'svg')
+    const svg_viewbox = `0 0 ${width} ${height}`
+    svg.style.position = 'relative'
+    svg.style.display = 'block'
+    svg.style.width = '100%'
+    svg.style.height = '100%'
+    svg.setAttribute('viewbox',svg_viewbox)
+    svg.style.pointerEvents = 'none'
+  
+    // svg shapes shapes 
+
+    // Triangle
+    const triangle = document.createElementNS(namespace, 'polygon')
+    const triangle_points = `0 ${height}, ${width/2} 0, ${width} ${height}`
+    triangle.setAttribute('style', '')
+    triangle.setAttribute('fill', color)
+    triangle.setAttribute('points', triangle_points)
+
+
+    // Square
+    const square = document.createElementNS(namespace, 'polygon')
+    const square_points = `0 0, ${width} 0, ${width} ${width}, 0 ${height}`
+    square.setAttribute('style', '')
+    square.setAttribute('fill', color)
+    square.setAttribute('points', square_points)
+
+    // Circle
+    const circle = document.createElementNS(namespace, 'circle')
+    circle.setAttribute('style', '')
+    circle.setAttribute('fill', color)
+    circle.setAttribute('cx',`${width/2}`)
+    circle.setAttribute('cy',`${width/2}`)
+    circle.setAttribute('r',`${width/2}`)
+
+
+    switch(componentShape){
+
+      case 'triangle':
+          svg.appendChild(triangle)
+          shapeElement = svg
+          break;
+
+      case 'square':
+          svg.appendChild(square)
+          shapeElement = svg
+          break;
+
+      case 'circle':
+        svg.appendChild(circle)
+        shapeElement = svg
+        break;
+
+      default:
+        svg.appendChild(square)
+        shapeElement = svg
+        break;
+            
+    }
+
+    newComponent.appendChild(shapeElement) 
+
+
+    newComponent.addEventListener('dragstart', (e) => owner.onDragStartShape(e,id,'canvas_shape'))
+    // connector anchors
+    let anchorElm = document.createElement('div')
+    anchorElm.id = 'anchor1'
+    anchorElm.className = 'con_anchor_top'
+    anchorElm.draggable = true
+    // anchorElm.draggable = true
+    // anchorElm.addEventListener('dragstart',(e)=>{this.onDragStartAnchor(e, anchorElm.id)})
+    anchorElm.addEventListener('mousedown', (e)=>{owner.onMouseDownAnchor(e)})
+    anchorElm.addEventListener('dragstart',(e)=>{
+                                                 e.preventDefault()
+                                                 e.stopPropagation()
+                                                })
+    newComponent.appendChild(anchorElm)
+
+    return newComponent
+}
