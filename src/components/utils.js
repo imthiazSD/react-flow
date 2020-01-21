@@ -52,14 +52,29 @@ export function toJSON(node) {
       } else if (obj.tagName === 'textarea') {
         attrNames.set('value', '');
       }else if (obj.tagName === 'line'){
-        // obj.x1.baseVal.value = node.x1.baseVal.value
-        // obj.x2.baseVal.value = node.x2.baseVal.value
-        // obj.y1.baseVal.value = node.y1.baseVal.value
-        // obj.y2.baseVal.value = node.y2.baseVal.value
+
         obj.x1 = node.x1.baseVal.value
         obj.x2 = node.x2.baseVal.value
         obj.y1 = node.y1.baseVal.value
         obj.y2 = node.y2.baseVal.value
+      
+      }else if(obj.tagName === 'polygon'){
+
+        obj.custom_points = []
+        for(let value of Object.values(node.points)){
+
+           obj.custom_points.push({x:value.x, y: value.y})
+
+        }
+
+      }else if (obj.tagName === 'circle'){
+        obj.cx = node.cx.baseVal.value
+        obj.cy = node.cy.baseVal.value
+        obj.r = node.r.baseVal.value
+      
+      }else if(obj.tagName === 'svg'){
+        obj.viewBox = node.viewBox.baseVal
+
       }
 
 
@@ -133,6 +148,66 @@ export function toJSON(node) {
           node.setAttribute('y2', y2)
 
           
+        }else if(obj.tagName === 'polygon'){
+          
+          let points_string = ''
+
+          obj.custom_points.forEach(point => {
+          
+            points_string += `${point.x} ${point.y}, `
+          
+          })
+
+          
+
+          node = document.createElementNS('http://www.w3.org/2000/svg','polygon');       
+
+          if (obj.attributes) {
+            for (let [attrName, value] of obj.attributes) {
+
+              if(attrName === 'points'){
+                continue;
+              }else{
+                let propName = propFix[attrName] || attrName;
+                // Note: this will throw if setting the value of an input[type=file]
+                node[propName] = value;
+              }
+              
+            }
+
+          }
+          
+          points_string = points_string.slice(0,-2)
+          node.setAttribute('style', '')
+          node.setAttribute('fill', '#DDF5FF')
+          node.setAttribute('points',points_string)
+
+
+        }else if(obj.tagName === 'circle'){
+
+          node = document.createElementNS('http://www.w3.org/2000/svg','circle');
+
+          node.setAttribute('style', '')
+          node.setAttribute('fill', '#DDF5FF')
+          node.setAttribute('cx', obj.cx)
+          node.setAttribute('cy', obj.cy)
+          node.setAttribute('r', obj.r)
+
+        }else if(obj.tagName === 'svg'){
+
+          const {x, y, width, height} = obj.viewBox
+          let svg_viewbox = `${x} ${y} ${width} ${height}`
+          
+          node = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+
+          node.style.position = 'relative'
+          node.style.display = 'block'
+          node.style.width = '100%'
+          node.style.height = '100%'
+          node.style.pointerEvents = 'none'
+          node.setAttribute('viewbox',svg_viewbox)
+
+
         }else{
 
           node = document.createElement(obj.tagName);
@@ -154,6 +229,7 @@ export function toJSON(node) {
           }  
                     
         }
+
         break;
       }
       //TEXT_NODE
@@ -277,8 +353,7 @@ export function createShapeComponent(name,left,top,owner){
     anchorElm.id = 'anchor1'
     anchorElm.className = 'con_anchor_top'
     anchorElm.draggable = true
-    // anchorElm.draggable = true
-    // anchorElm.addEventListener('dragstart',(e)=>{this.onDragStartAnchor(e, anchorElm.id)})
+
     anchorElm.addEventListener('mousedown', (e)=>{owner.onMouseDownAnchor(e)})
     anchorElm.addEventListener('dragstart',(e)=>{
                                                  e.preventDefault()

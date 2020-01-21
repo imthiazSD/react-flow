@@ -306,7 +306,7 @@ export default class Base extends Component{
             component.addEventListener('dragstart', (e) => this.onDragStartShape(e,id,'canvas_shape'))
             document.getElementById('chart_window').appendChild(component)
             
-            const anchorElm = component.children[0]
+            const anchorElm = component.children[1]
             anchorElm.addEventListener('mousedown', (e)=>{this.onMouseDownAnchor(e)})
             anchorElm.addEventListener('dragstart',(e)=>{
                                                         e.preventDefault()
