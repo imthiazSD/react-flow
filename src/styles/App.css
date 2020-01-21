@@ -1,7 +1,8 @@
 body{
-  background:#f1f2f6;;
+  background:#f1f1fa;;
   --shape-width: 60px;
   --shape-height: 60px;
+  --shape-color: #a29bfe;
 }
 
 /* Main */
@@ -45,7 +46,7 @@ body{
   position:relative;
   width:100%;
   height:100%;
-  stroke:#5c96bc;
+  stroke: #6c5ce7;
   stroke-width:2;
   pointer-events:none;
   /* position: absolute; */
@@ -64,8 +65,8 @@ body{
   
   border-left: calc(var(--shape-height)/2) solid transparent;
 	border-right: calc(var(--shape-height)/2) solid transparent;
-  border-bottom: var(--shape-height) solid #70a1ff;
-  transition: transform .2s; 
+  border-bottom: var(--shape-height) solid var(--shape-color);
+  transition: transform .3s; 
 
   margin: 0 auto;
   position: relative;
@@ -77,9 +78,8 @@ body{
 #toolbox_square {
   height: var(--shape-height);
   width: var(--shape-height);
-background-color: #ffffff;
-  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.2);  transition: transform .2s; 
-
+  background-color: var(--shape-color);
+  transition: transform .3s; 
   margin: 0 auto;
   position: relative;
   top:60px
@@ -88,10 +88,9 @@ background-color: #ffffff;
 #toolbox_circle {
   height: var(--shape-height);
   width: var(--shape-height);
-  background-color: #ffffff;
-  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.2);
+  background-color: var(--shape-color);
 
-  transition: transform .2s; 
+  transition: transform .3s; 
 
   border-radius: 50%;
   margin: 0 auto;
@@ -119,7 +118,7 @@ background-color: #ffffff;
   
   border-left: calc(var(--shape-height)/2) solid transparent;
 	border-right: calc(var(--shape-height)/2) solid transparent;
-  border-bottom: var(--shape-height) solid #70a1ff;
+  border-bottom: var(--shape-height) solid #fd79a8;
 
   margin: 0 auto;
   box-shadow: 0px 0px 20px 1px rgba(0, 0, 0, 0.1);
@@ -128,7 +127,7 @@ background-color: #ffffff;
 .shape_circle {
   height: var(--shape-height);
   width: var(--shape-height);
-  background-color: #70a1ff;
+  background-color: #fd79a8;
   border-radius: 50%;
 
   margin: 0 auto;
@@ -138,7 +137,7 @@ background-color: #ffffff;
 .shape_square {
   height: var(--shape-height);
   width: var(--shape-height);
-  background-color: #ffffff;
+  background-color: #fd79a8;
   transition: transform .2s; 
   margin: 0 auto;
   box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.2);
@@ -161,18 +160,38 @@ background-color: #ffffff;
 .canvas_shape {
   height: var(--shape-height);
   width: var(--shape-height);
-  
+  background-color: transparent;
+  transition: transform .2s; 
+}
+
+.canvas_shape:hover{
+  transform: scale(1.1);
+
+}
+
+.svg_shapes{
+
+  -webkit-filter: drop-shadow( 0px 0px 7px rgba(0, 0, 0, .3));
+  filter: drop-shadow( 0px 0px 7px rgba(0, 0, 0, .3));
 
 }
 
 
 .con_anchor_top{
   position: absolute;
-  left: 0px;
-  top:0px;
+  left: 23px;
+  top:50px;
   width: 15px;
   height: 15px;
-  background-color: #47cf73;
+  background-color: #a29bfe ;
   border-radius: 5px;
   z-index:5;
+  box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.2);
+  transition: transform .2s; 
+
+}
+
+.con_anchor_top:hover{
+  transform: scale(1.3);
+
 }
