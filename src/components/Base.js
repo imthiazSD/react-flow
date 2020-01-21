@@ -107,28 +107,29 @@ export default class Base extends Component{
         const current_component = this.state.current_component
         
         const canvas = document.getElementById('chart_window')
-        const x = e.clientX  -canvas.offsetParent.offsetLeft - canvas.offsetLeft 
+        const x = e.clientX - canvas.offsetParent.offsetLeft - canvas.offsetLeft 
         const y = e.clientY - canvas.offsetParent.offsetTop - canvas.offsetTop
 
         // update line endpoint coordinates 
         if(current_component){
 
-            let {shape_components} = this.state
+            let shape_components = _.cloneDeep(this.state.shape_components) 
 
             shape_components.forEach(shape_component => {
+
                 if(shape_component.component.id === current_component.id){
     
-                    shape_component.lines_from_self.forEach(lineElm =>{
+                    shape_component.lines_from_self.forEach(line_fs =>{
 
-                        lineElm.setAttribute('x1',x)
-                        lineElm.setAttribute('y1',y)
+                        line_fs.setAttribute('x1',x)
+                        line_fs.setAttribute('y1',y)
 
                     })
 
-                    shape_component.lines_to_self.forEach(lineElm =>{
+                    shape_component.lines_to_self.forEach(line_ts =>{
 
-                        lineElm.setAttribute('x2',x)
-                        lineElm.setAttribute('y2',y)
+                        line_ts.setAttribute('x2',x)
+                        line_ts.setAttribute('y2',y)
 
                     })
     
@@ -145,9 +146,9 @@ export default class Base extends Component{
 
         console.log('clikced')
         this.setState({isMouseDown: true})
-        const id = 'con_line' + this.state.lines.length
+        let lines = _.cloneDeep(this.state.lines) 
+        const id = 'con_line' + lines.length
         const newLine = this.initializeLine(id)
-        let lines = this.state.lines
         lines.push(newLine)
         this.setState({lines})
 
@@ -236,7 +237,7 @@ export default class Base extends Component{
             // remove the line from the canvas and state
             let lineElm = document.getElementById(this.state.current_line_id)
             lineElm.parentNode.removeChild(lineElm)
-            let lines = this.state.lines
+            let lines = _.cloneDeep(this.state.lines) 
             lines.slice(0,-1)
             this.setState({lines})
         }
@@ -313,18 +314,21 @@ export default class Base extends Component{
 
             console.log(this.state)
             this.clearCanvas()
-            const {shape_components,lines} = this.loadFromLoacalStorage()
+
+            const shape_components = _.cloneDeep(this.loadFromLoacalStorage().shape_components)
+            const lines = _.cloneDeep(this.loadFromLoacalStorage().lines)
             
-            this.setState({shape_components,lines},()=> this.drawChart(shape_components))
+            this.setState({shape_components,lines},()=> this.drawChart(shape_components,lines))
 
         }
         
     }
 
 
-    drawChart = (shape_components) => {
+    drawChart = (shape_components,lines) => {
 
-        // Draw shape components on to canvas div
+        // Draw shape components onto canvas div
+        
         shape_components.forEach(shape_component => {
             
             let {component} = shape_component
@@ -337,21 +341,44 @@ export default class Base extends Component{
             const anchorElm = component.children[0]
             anchorElm.addEventListener('mousedown', (e)=>{this.onMouseDownAnchor(e)})
             anchorElm.addEventListener('dragstart',(e)=>{
-                                                     e.preventDefault()
-                                                     e.stopPropagation()
-                                                    })
-            // Draw lines on to connector canvas svg
-            let {lines_from_self} = shape_component
-            let {lines_to_self} = shape_component
+                                                        e.preventDefault()
+                                                        e.stopPropagation()
+                                                        })
+            
+            /** Append the line objects to lines_from_self and lines_to_self array
+                of the shape_component, to avoid the cloning the objects.
+                We need the reference of the same line object in both 
+                lines_from_self and lines_to_self array
+            */
+           
+            lines.forEach(line => {
 
-            lines_from_self.forEach(line_fs =>{
-                document.getElementById('connector_canvas').appendChild(line_fs) 
+             shape_components = shape_components.map(shape_component => {
+
+                   shape_component.lines_from_self = shape_component.lines_from_self.map(line_fs =>{
+
+                                        if(line.id === line_fs.id){ return line}
+                                        else{ return line_fs}
+                                    })
+
+                   shape_component.lines_to_self = shape_component.lines_to_self.map(line_ts =>{
+
+                                        if(line.id === line_ts.id){ return line}
+                                        else{ return line_ts}
+                                    })
+
+                    return shape_component
+
+                })
+                
+                // Draw lines onto connector canvas svg
+                document.getElementById('connector_canvas').appendChild(line) 
             })
 
-            // lines_to_self.forEach(line_ts =>{
-            //     document.getElementById('connector_canvas').appendChild(line_ts) 
-            // })
-            
+            this.setState({shape_components})
+
+
+
 
         })
        
@@ -381,7 +408,7 @@ export default class Base extends Component{
             })
         console.log('saved state',this.state)
         // Stringfy global line elements
-        let lines = Object.assign(this.state.lines) 
+        let lines = _.cloneDeep(this.state.lines)
         lines = lines.map(line => (toJSON(line)))
 
         const flow_chart = JSON.stringify({shape_components,lines})
@@ -391,7 +418,11 @@ export default class Base extends Component{
     
     loadFromLoacalStorage = () => {
 
-        let {shape_components,lines} = JSON.parse(localStorage.getItem('flow_chart'))
+        let flow_chart = JSON.parse(localStorage.getItem('flow_chart'))
+        
+        let shape_components = _.cloneDeep(flow_chart.shape_components)
+        let lines = _.cloneDeep(flow_chart.lines)
+
         lines = lines.map(line => (toDOM(line)))
         // Parse all the DOM node objects and format them back to DOM node represenation
         shape_components = shape_components.map(shape_component => {
@@ -408,6 +439,8 @@ export default class Base extends Component{
 
             return shape_component
         })
+
+        console.log('localstrge state bfre',this.state.shape_components)
 
         return {shape_components,lines}
     }
