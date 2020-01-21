@@ -113,6 +113,18 @@ background-color: #ffffff;
 
 /* Canvas shape components */
 
+.shape_triangle {
+	width: 0;
+	height: 0;
+  
+  border-left: calc(var(--shape-height)/2) solid transparent;
+	border-right: calc(var(--shape-height)/2) solid transparent;
+  border-bottom: var(--shape-height) solid #70a1ff;
+
+  margin: 0 auto;
+  box-shadow: 0px 0px 20px 1px rgba(0, 0, 0, 0.1);
+}
+
 .shape_circle {
   height: var(--shape-height);
   width: var(--shape-height);
@@ -146,31 +158,18 @@ background-color: #ffffff;
 
 }
 
-.shape_ghost {
+.canvas_shape {
   height: var(--shape-height);
   width: var(--shape-height);
-  background-color:black;
-
-  margin: 0 auto;
-
-}
-
-.shape_triangle {
-	width: 0;
-	height: 0;
   
-  border-left: calc(var(--shape-height)/2) solid transparent;
-	border-right: calc(var(--shape-height)/2) solid transparent;
-  border-bottom: var(--shape-height) solid #70a1ff;
 
-  margin: 0 auto;
-  box-shadow: 0px 0px 20px 1px rgba(0, 0, 0, 0.1);
 }
+
 
 .con_anchor_top{
-  /* position: absolute; */
-  left: 23px;
-  top:50px;
+  position: absolute;
+  left: 0px;
+  top:0px;
   width: 15px;
   height: 15px;
   background-color: #47cf73;
