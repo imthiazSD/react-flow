@@ -179,7 +179,7 @@ export function toJSON(node) {
           
           points_string = points_string.slice(0,-2)
           node.setAttribute('style', '')
-          node.setAttribute('fill', '#DDF5FF')
+          node.setAttribute('fill', '#FFF')
           node.setAttribute('points',points_string)
 
 
@@ -188,7 +188,7 @@ export function toJSON(node) {
           node = document.createElementNS('http://www.w3.org/2000/svg','circle');
 
           node.setAttribute('style', '')
-          node.setAttribute('fill', '#DDF5FF')
+          node.setAttribute('fill', '#FFF')
           node.setAttribute('cx', obj.cx)
           node.setAttribute('cy', obj.cy)
           node.setAttribute('r', obj.r)
@@ -206,6 +206,8 @@ export function toJSON(node) {
           node.style.height = '100%'
           node.style.pointerEvents = 'none'
           node.setAttribute('viewbox',svg_viewbox)
+          node.setAttribute('class','svg_shapes')
+
 
 
         }else{
@@ -282,7 +284,7 @@ export function createShapeComponent(name,left,top,owner){
     const width = 60
     const height = 60
     const viewBox = '0 0 60 60'
-    const color = '#DDF5FF'
+    const color = '#FFF'
 
     const namespace = 'http://www.w3.org/2000/svg'
     const svg = document.createElementNS(namespace,'svg')
@@ -292,6 +294,7 @@ export function createShapeComponent(name,left,top,owner){
     svg.style.width = '100%'
     svg.style.height = '100%'
     svg.setAttribute('viewbox',svg_viewbox)
+    svg.setAttribute('class','svg_shapes')
     svg.style.pointerEvents = 'none'
   
     // svg shapes shapes 

@@ -132,11 +132,16 @@ export default class Base extends Component{
 
         if(rect){
 
-            rect = {    x      : rect.offsetParent.offsetLeft,
-                        y      : rect.offsetParent.offsetTop,
+            rect = {    x      : rect.offsetParent.offsetLeft + 23,
+                        y      : rect.offsetParent.offsetTop + 50,
                         width  : rect.offsetWidth,
                         height : rect.offsetHeight
                    }
+            // rect = {    x      : 23,
+            //             y      : 50,
+            //             width  : rect.offsetWidth,
+            //             height : rect.offsetHeight
+            //     }
             console.log('cx cy',x,y)
             console.log('rect',rect)
             if(pointInRect(x,y,rect)){
@@ -205,7 +210,7 @@ export default class Base extends Component{
             let lineElm = document.getElementById(this.state.current_line_id)
             lineElm.parentNode.removeChild(lineElm)
             let lines = _.cloneDeep(this.state.lines) 
-            lines.slice(0,-1)
+            lines = lines.slice(0,-1)
             this.setState({lines})
         }
 
@@ -218,8 +223,8 @@ export default class Base extends Component{
         const {current_anchor} = this.state
 
         const canvas = document.getElementById('chart_window')
-        const x1 = current_anchor.offsetParent.offsetLeft 
-        const y1 = current_anchor.offsetParent.offsetTop  
+        const x1 = current_anchor.offsetParent.offsetLeft + current_anchor.offsetParent.offsetWidth/2
+        const y1 = current_anchor.offsetParent.offsetTop  + current_anchor.offsetParent.offsetHeight/2
         const x2 = e.clientX - canvas.offsetParent.offsetLeft - canvas.offsetLeft
         const y2 = e.clientY - canvas.offsetParent.offsetTop - canvas.offsetTop
 
